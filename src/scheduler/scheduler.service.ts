@@ -17,7 +17,7 @@ export class SchedulerService {
     this.isRunning = true;
     console.log('Called when the current second is 0');
     await this.puppeteerService.getQuota([
-      'https://digipos.telkomsel.com/simcardchecking/S157X01500000534775130000108127010721',
+      'https://digipos.telkomsel.com/simcardchecking/S157X0150000053477513000010812701072',
       'https://digipos.telkomsel.com/simcardchecking/S157X0150000053477514000010812701073',
       'https://digipos.telkomsel.com/simcardchecking/S157X0150000053477515000010812701074',
       'https://digipos.telkomsel.com/simcardchecking/S157X0150000053477516000010812701075',

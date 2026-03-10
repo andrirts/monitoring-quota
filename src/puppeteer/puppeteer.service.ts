@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import * as dayjs from 'dayjs';
 import * as puppeteer from 'puppeteer';
 
 @Injectable()
@@ -15,6 +16,11 @@ export class PuppeteerService {
       const page = await browser.newPage();
 
       const results = [];
+
+      console.log(
+        dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        'Starting to scrape data...',
+      );
 
       for (const url of urls) {
         console.log('Opening:', url);
@@ -54,6 +60,11 @@ export class PuppeteerService {
       }
 
       console.log('Results:', results);
+
+      console.log(
+        dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        'Finished scraping data.',
+      );
 
       await browser.close();
 
