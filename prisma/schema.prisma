@@ -1,0 +1,38 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Msisdn {
+  id             Int       @id @default(autoincrement())
+  msisdn         String
+  sn             String
+  slotSimbank    Int       @map("slot_simbank")
+  linkCekKuota   String    @map("link_cek_kuota")
+  noDus          String    @map("no_dus")
+  kuota          Float     @default(0)
+  usedQuota      Float     @default(0) @map("used_quota")
+  remainingQuota Float     @default(0) @map("remaining_quota")
+  lastScrapedAt  DateTime? @map("last_scraped_at")
+  isExhausted    Boolean   @default(false) @map("is_exhausted")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@map("msisdn")
+}
+
+model ActivityLog {
+  id               Int      @id @default(autoincrement())
+  recordedAt       DateTime @default(now()) @map("recorded_at")
+  totalSimCards    Int      @map("total_sim_cards")
+  statusActive     Int      @map("status_active")
+  statusHabis      Int      @map("status_habis")
+  newlyExhausted   Int      @map("newly_exhausted")
+
+  @@map("activity_log")
+}

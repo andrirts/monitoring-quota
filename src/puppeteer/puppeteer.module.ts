@@ -5,4 +5,4 @@ import { PuppeteerService } from './puppeteer.service';
   providers: [PuppeteerService],
   exports: [PuppeteerService],
 })
-export class PuppeteerModule {}
+export class PuppeteerModule { }
