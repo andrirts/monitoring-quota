@@ -21,7 +21,7 @@ export class SchedulerService {
    * Scrape quota setiap 15 menit
    * Flow:
    * 1. Baca semua linkCekKuota dari DB (hanya yang isExhausted = false)
-   * 2. Puppeteer scrape setiap link
+   * 2. Puppeteer scrape setiap link (1 browser, 10 tab paralel)
    * 3. Update data kuota di DB
    */
   @Cron('0 */15 * * * *')
@@ -62,7 +62,7 @@ export class SchedulerService {
         `Scheduled scrape complete. Updated ${updatedCount}/${links.length} records.`,
       );
 
-      await this.notificationService.checkAndNotify();
+      await this.activityLogService.flagAndSnapshot();
     } catch (err) {
       this.logger.error('Error in scheduled scrape:', err);
     } finally {
@@ -71,18 +71,16 @@ export class SchedulerService {
   }
 
   /**
-   * Buat snapshot activity log setiap 1 jam, di-offset 5 menit
-   * (berjalan di menit 05 setiap jam, misal: 14:05, 15:05)
+   * Snapshot activity log setiap 1 jam (offset 5 menit: 14:05, 15:05, dst.)
    */
   @Cron('0 5 * * * *')
   async handleActivityLog() {
     try {
-      this.logger.log('Creating hourly activity log snapshot...');
+      this.logger.log('Creating hourly activity log snapshot & check notification...');
+      await this.notificationService.checkAndNotify();
       await this.activityLogService.createSnapshot();
     } catch (err) {
       this.logger.error('Error creating activity log:', err);
     }
   }
 }
-
-

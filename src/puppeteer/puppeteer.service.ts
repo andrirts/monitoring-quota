@@ -11,7 +11,7 @@ export interface ScrapeResult {
 @Injectable()
 export class PuppeteerService {
   private readonly logger = new Logger(PuppeteerService.name);
-  private readonly CONCURRENCY = 3;
+  private readonly CONCURRENCY = 10;
   private readonly MAX_RETRIES = 2;
 
 

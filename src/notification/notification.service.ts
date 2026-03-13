@@ -31,7 +31,7 @@ export class NotificationService {
      */
     async checkAndNotify(): Promise<void> {
         try {
-            const thresholdGB = 0.3;
+            const thresholdGB = 0.2;
             const minCount = 100;
 
             const lowQuotaData =
@@ -63,11 +63,11 @@ export class NotificationService {
             await this.transporter.sendMail({
                 from: `"Monitoring Quota System" <${this.configService.get<string>('EMAIL_USER')}>`,
                 to: emailTo,
-                subject: `[Alert] Quota Rendah - ${lowQuotaData.length} SIM Cards di bawah 300 MB`,
+                subject: `[Alert] Quota Rendah - ${lowQuotaData.length} SIM Cards di bawah 200 MB`,
                 html: `
           <div style="font-family: Arial, sans-serif; padding: 20px;">
             <h2 style="color: #e53e3e;">⚠️ Alert: Quota Rendah</h2>
-            <p>Terdapat <strong>${lowQuotaData.length}</strong> SIM card dengan sisa kuota di bawah <strong>300 MB</strong>.</p>
+            <p>Terdapat <strong>${lowQuotaData.length}</strong> SIM card dengan sisa kuota di bawah <strong>200 MB</strong>.</p>
             <table style="border-collapse: collapse; margin: 16px 0;">
               <tr>
                 <td style="padding: 8px 16px; border: 1px solid #ddd; background: #f7f7f7;"><strong>Jumlah SIM Card</strong></td>
@@ -75,7 +75,7 @@ export class NotificationService {
               </tr>
               <tr>
                 <td style="padding: 8px 16px; border: 1px solid #ddd; background: #f7f7f7;"><strong>Threshold</strong></td>
-                <td style="padding: 8px 16px; border: 1px solid #ddd;">300 MB (0.3 GB)</td>
+                <td style="padding: 8px 16px; border: 1px solid #ddd;">200 MB (0.2 GB)</td>
               </tr>
               <tr>
                 <td style="padding: 8px 16px; border: 1px solid #ddd; background: #f7f7f7;"><strong>Waktu Pengecekan</strong></td>

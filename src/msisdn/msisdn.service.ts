@@ -211,6 +211,9 @@ export class MsisdnService {
     }
 
     /**
+     * Summary realtime dari DB.
+     * newlyExhausted = total SIM yang baru habis dalam 1 jam terakhir
+     * (jumlah dari semua activity log snapshot dalam 60 menit terakhir)
      */
     async getSummary() {
         const data = await this.prisma.client.msisdn.findMany();
@@ -227,10 +230,16 @@ export class MsisdnService {
             }
         }
 
-        const latestLog = await this.prisma.client.activityLog.findFirst({
-            orderBy: { recordedAt: 'desc' },
+        // Sum newlyExhausted dari semua log dalam 1 jam terakhir
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        const recentLogs = await this.prisma.client.activityLog.findMany({
+            where: { recordedAt: { gte: oneHourAgo } },
+            select: { newlyExhausted: true },
         });
-        const newlyExhausted = latestLog?.newlyExhausted || 0;
+        const newlyExhausted = recentLogs.reduce(
+            (sum, log) => sum + log.newlyExhausted,
+            0,
+        );
 
         return {
             totalSimCards,
