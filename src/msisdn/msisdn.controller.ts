@@ -101,8 +101,9 @@ export class MsisdnController {
         @Query('limit') limit: string = '10',
         @Query('status') status?: string,
         @Query('search') search?: string,
+        @Query('sort') sort?: string,
     ) {
-        return this.msisdnService.findAll(Number(page), Number(limit), status, search);
+        return this.msisdnService.findAll(Number(page), Number(limit), status, search, sort);
     }
 
     /**

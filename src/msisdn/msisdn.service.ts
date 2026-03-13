@@ -169,7 +169,7 @@ export class MsisdnService {
     }
 
 
-    async findAll(page: number = 1, limit: number = 10, status?: string, search?: string) {
+    async findAll(page: number = 1, limit: number = 10, status?: string, search?: string, sort?: string) {
         const safePage = Math.max(1, page);
         const safeLimit = Math.min(Math.max(1, limit), 1000);
         const skip = (safePage - 1) * safeLimit;
@@ -189,10 +189,14 @@ export class MsisdnService {
             ];
         }
 
+        const orderBy = sort === 'desc'
+            ? { lastScrapedAt: 'desc' as const }
+            : { id: 'asc' as const };
+
         const [data, total] = await Promise.all([
             this.prisma.client.msisdn.findMany({
                 where,
-                orderBy: { id: 'asc' },
+                orderBy,
                 skip,
                 take: safeLimit,
             }),
@@ -221,12 +225,18 @@ export class MsisdnService {
 
         let statusActive = 0;
         let statusHabis = 0;
+        let lastScrapedAt: Date | null = null;
 
         for (const d of data) {
             if (d.isExhausted) {
                 statusHabis++;
             } else {
                 statusActive++;
+            }
+            if (d.lastScrapedAt) {
+                if (!lastScrapedAt || d.lastScrapedAt > lastScrapedAt) {
+                    lastScrapedAt = d.lastScrapedAt;
+                }
             }
         }
 
@@ -246,6 +256,7 @@ export class MsisdnService {
             statusActive,
             statusHabis,
             newlyExhausted,
+            lastScrapedAt,
         };
     }
 
