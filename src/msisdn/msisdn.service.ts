@@ -148,7 +148,7 @@ export class MsisdnService {
                     kuota: item.kuota,
                     usedQuota: 0,
                     remainingQuota: 0,
-                    isExhausted: false,
+                    isExhausted: item.kuota <= 0.2,
                 };
             }),
             skipDuplicates: true,
@@ -169,18 +169,34 @@ export class MsisdnService {
     }
 
 
-    async findAll(page: number = 1, limit: number = 10) {
+    async findAll(page: number = 1, limit: number = 10, status?: string, search?: string) {
         const safePage = Math.max(1, page);
         const safeLimit = Math.min(Math.max(1, limit), 1000);
         const skip = (safePage - 1) * safeLimit;
 
+        const where: any = {};
+
+        if (status === 'aktif') {
+            where.isExhausted = false;
+        } else if (status === 'habis') {
+            where.isExhausted = true;
+        }
+
+        if (search) {
+            where.OR = [
+                { msisdn: { contains: search } },
+                { sn: { contains: search } },
+            ];
+        }
+
         const [data, total] = await Promise.all([
             this.prisma.client.msisdn.findMany({
+                where,
                 orderBy: { id: 'asc' },
                 skip,
                 take: safeLimit,
             }),
-            this.prisma.client.msisdn.count(),
+            this.prisma.client.msisdn.count({ where }),
         ]);
 
         return {
@@ -200,13 +216,11 @@ export class MsisdnService {
         const data = await this.prisma.client.msisdn.findMany();
         const totalSimCards = data.length;
 
-        const HABIS_THRESHOLD = 0.2; // 200 MB
-
         let statusActive = 0;
         let statusHabis = 0;
 
         for (const d of data) {
-            if (d.kuota <= HABIS_THRESHOLD) {
+            if (d.isExhausted) {
                 statusHabis++;
             } else {
                 statusActive++;

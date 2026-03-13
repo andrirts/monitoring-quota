@@ -99,8 +99,10 @@ export class MsisdnController {
     async findAll(
         @Query('page') page: string = '1',
         @Query('limit') limit: string = '10',
+        @Query('status') status?: string,
+        @Query('search') search?: string,
     ) {
-        return this.msisdnService.findAll(Number(page), Number(limit));
+        return this.msisdnService.findAll(Number(page), Number(limit), status, search);
     }
 
     /**
