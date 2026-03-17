@@ -5,6 +5,15 @@ import { ActivityLogService } from './activity-log.service';
 export class ActivityLogController {
     constructor(private readonly activityLogService: ActivityLogService) { }
 
+    @Get('chart')
+    async getChartData(
+        @Query('groupBy') groupBy?: 'hour' | 'day',
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+    ) {
+        return this.activityLogService.getChartData(groupBy || 'hour', startDate, endDate);
+    }
+
     /**
      * GET /activity-logs?page=1&limit=24&startDate=2026-03-13&endDate=2026-03-14
      * Default limit 24 = data per jam selama 1 hari

@@ -134,7 +134,7 @@ export class MsisdnService {
 
     /**
      * Bulk insert data ke database.
-     * Jika remainingQuota <= 0 saat upload, langsung set isExhausted = true
+     * Jika kuota < 0.3 saat upload, langsung set isExhausted = true
      */
     async bulkUpload(data: BulkUploadItemDto[]) {
         const result = await this.prisma.client.msisdn.createMany({
@@ -148,7 +148,7 @@ export class MsisdnService {
                     kuota: item.kuota,
                     usedQuota: 0,
                     remainingQuota: 0,
-                    isExhausted: item.kuota <= 0.2,
+                    isExhausted: item.kuota < 0.3,
                 };
             }),
             skipDuplicates: true,
