@@ -5,13 +5,13 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ActivityLogService {
     private readonly logger = new Logger(ActivityLogService.name);
 
-    private readonly EXHAUSTED_THRESHOLD = 0.3;
+    private readonly EXHAUSTED_THRESHOLD = 0.4;
 
     constructor(private readonly prisma: PrismaService) { }
 
     /**
      * Dijalankan setiap 15 menit setelah scrape selesai.
-     * - Update isExhausted untuk yang kuota < 0.3
+     * - Update isExhausted untuk yang kuota < 0.4
      * - Hitung newlyExhausted
      * - Buat activity log snapshot 
      */
