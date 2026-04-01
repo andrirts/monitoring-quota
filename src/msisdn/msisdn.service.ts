@@ -97,10 +97,11 @@ export class MsisdnService {
             const kuota = this.getCellNumber(row.getCell(7));
             const usedQuota = this.getCellNumber(row.getCell(8));
             const remainingQuota = this.getCellNumber(row.getCell(9));
+            const city = this.getCellString(row.getCell(10));
 
             if (!msisdn || !linkCekKuota) return;
 
-            results.push({ msisdn, sn, slotSimbank, linkCekKuota, noDus, kuota, usedQuota, remainingQuota });
+            results.push({ msisdn, sn, slotSimbank, linkCekKuota, noDus, kuota, usedQuota, remainingQuota, city });
         });
 
         return results;
@@ -122,9 +123,10 @@ export class MsisdnService {
                     const kuota = Number(row['Kuota'] || row['kuota']) || 0;
                     const usedQuota = Number(row['Used Quota'] || row['usedQuota'] || row['used_quota']) || 0;
                     const remainingQuota = Number(row['Remaining Quota'] || row['remainingQuota'] || row['remaining_quota']) || 0;
+                    const city = (row['City'] || row['city'] || row['Lokasi'] || row['lokasi'] || '').trim();
 
                     if (msisdn && linkCekKuota) {
-                        results.push({ msisdn, sn, slotSimbank, linkCekKuota, noDus, kuota, usedQuota, remainingQuota });
+                        results.push({ msisdn, sn, slotSimbank, linkCekKuota, noDus, kuota, usedQuota, remainingQuota, city });
                     }
                 })
                 .on('end', () => resolve(results))
@@ -148,6 +150,7 @@ export class MsisdnService {
                     kuota: item.kuota,
                     usedQuota: 0,
                     remainingQuota: 0,
+                    city: item.city || 'All Location',
                     isExhausted: item.kuota < 0.4,
                 };
             }),
@@ -186,6 +189,7 @@ export class MsisdnService {
             where.OR = [
                 { msisdn: { contains: search } },
                 { sn: { contains: search } },
+                { city: { contains: search, mode: 'insensitive' } },
             ];
         }
 
@@ -304,6 +308,7 @@ export class MsisdnService {
             { header: 'Kuota', key: 'kuota', width: 10 },
             { header: 'Used Quota', key: 'usedQuota', width: 12 },
             { header: 'Remaining Quota', key: 'remainingQuota', width: 16 },
+            { header: 'City', key: 'city', width: 20 },
         ];
 
         sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -324,6 +329,7 @@ export class MsisdnService {
                 kuota: record.kuota,
                 usedQuota: record.usedQuota,
                 remainingQuota: record.remainingQuota,
+                city: record.city || '',
             });
         });
 

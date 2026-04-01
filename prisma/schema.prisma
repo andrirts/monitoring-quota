@@ -18,6 +18,7 @@ model Msisdn {
   kuota          Float     @default(0)
   usedQuota      Float     @default(0) @map("used_quota")
   remainingQuota Float     @default(0) @map("remaining_quota")
+  city           String    @default("All Location")
   lastScrapedAt  DateTime? @map("last_scraped_at")
   isExhausted    Boolean   @default(false) @map("is_exhausted")
   createdAt      DateTime  @default(now()) @map("created_at")
@@ -27,12 +28,23 @@ model Msisdn {
 }
 
 model ActivityLog {
-  id               Int      @id @default(autoincrement())
-  recordedAt       DateTime @default(now()) @map("recorded_at")
-  totalSimCards    Int      @map("total_sim_cards")
-  statusActive     Int      @map("status_active")
-  statusHabis      Int      @map("status_habis")
-  newlyExhausted   Int      @map("newly_exhausted")
+  id               Int                @id @default(autoincrement())
+  recordedAt       DateTime           @default(now()) @map("recorded_at")
+  totalSimCards    Int                @map("total_sim_cards")
+  statusActive     Int                @map("status_active")
+  statusHabis      Int                @map("status_habis")
+  newlyExhausted   Int                @map("newly_exhausted")
+  cityBreakdown    ActivityLogCity[]
 
   @@map("activity_log")
+}
+
+model ActivityLogCity {
+  id              Int         @id @default(autoincrement())
+  activityLogId   Int         @map("activity_log_id")
+  activityLog     ActivityLog @relation(fields: [activityLogId], references: [id], onDelete: Cascade)
+  city            String
+  newlyExhausted  Int         @map("newly_exhausted")
+
+  @@map("activity_log_city")
 }

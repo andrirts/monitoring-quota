@@ -23,6 +23,10 @@ export class BulkUploadItemDto {
     kuota: number;
 
     @IsOptional()
+    @IsString()
+    city?: string;
+
+    @IsOptional()
     @Type(() => Number)
     @IsNumber()
     usedQuota?: number;

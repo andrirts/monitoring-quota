@@ -16,6 +16,20 @@ export class ActivityLogService {
      * - Buat activity log snapshot 
      */
     async flagAndSnapshot(): Promise<void> {
+        const aboutToExhaust = await this.prisma.client.msisdn.findMany({
+            where: {
+                kuota: { lt: this.EXHAUSTED_THRESHOLD },
+                isExhausted: false,
+            },
+            select: { city: true },
+        });
+
+        const cityMap = new Map<string, number>();
+        for (const card of aboutToExhaust) {
+            const city = card.city || 'All Location';
+            cityMap.set(city, (cityMap.get(city) || 0) + 1);
+        }
+
         const updateResult = await this.prisma.client.msisdn.updateMany({
             where: {
                 kuota: { lt: this.EXHAUSTED_THRESHOLD },
@@ -42,11 +56,17 @@ export class ActivityLogService {
                 statusActive,
                 statusHabis,
                 newlyExhausted,
+                cityBreakdown: {
+                    create: Array.from(cityMap.entries()).map(([city, count]) => ({
+                        city,
+                        newlyExhausted: count,
+                    })),
+                },
             },
         });
 
         this.logger.log(
-            `[15min] Flag & snapshot — Total: ${totalSimCards} | Aktif: ${statusActive} | Habis: ${statusHabis} | Newly Exhausted: ${newlyExhausted}`,
+            `[15min] Flag & snapshot — Total: ${totalSimCards} | Aktif: ${statusActive} | Habis: ${statusHabis} | Newly Exhausted: ${newlyExhausted} | Cities: ${cityMap.size}`,
         );
     }
 
@@ -96,12 +116,10 @@ export class ActivityLogService {
         if (startDate || endDate) {
             where.recordedAt = {};
             if (startDate) {
-                where.recordedAt.gte = new Date(startDate);
+                where.recordedAt.gte = new Date(startDate + 'T00:00:00');
             }
             if (endDate) {
-                const end = new Date(endDate);
-                end.setHours(23, 59, 59, 999);
-                where.recordedAt.lte = end;
+                where.recordedAt.lte = new Date(endDate + 'T23:59:59.999');
             }
         }
 
@@ -134,42 +152,66 @@ export class ActivityLogService {
         if (startDate || endDate) {
             where.recordedAt = {};
             if (startDate) {
-                where.recordedAt.gte = new Date(startDate);
+                where.recordedAt.gte = new Date(startDate + 'T00:00:00');
             }
             if (endDate) {
-                const end = new Date(endDate);
-                end.setHours(23, 59, 59, 999);
-                where.recordedAt.lte = end;
+                where.recordedAt.lte = new Date(endDate + 'T23:59:59.999');
             }
         }
 
         const logs = await this.prisma.client.activityLog.findMany({
             where,
             orderBy: { recordedAt: 'asc' },
-            select: { recordedAt: true, newlyExhausted: true },
+            select: {
+                recordedAt: true,
+                newlyExhausted: true,
+                cityBreakdown: {
+                    select: { city: true, newlyExhausted: true },
+                },
+            },
         });
 
-        const groupedData = new Map<string, number>();
+        const allCities = new Set<string>();
+        for (const log of logs) {
+            for (const cb of log.cityBreakdown) {
+                allCities.add(cb.city);
+            }
+        }
 
-        if (logs.length > 0) {
-            const minDate = new Date(logs[0].recordedAt);
-            const maxDate = new Date(logs[logs.length - 1].recordedAt);
+        const groupedData = new Map<string, Record<string, number>>();
 
-            let currentPointer = new Date(minDate);
+        let rangeStart: Date | null = null;
+        let rangeEnd: Date | null = null;
+
+        if (startDate) {
+            rangeStart = new Date(startDate + 'T00:00:00');
+        }
+        if (endDate) {
+            rangeEnd = new Date(endDate + 'T23:59:59.999');
+        }
+
+        if (!rangeStart && logs.length > 0) {
+            rangeStart = new Date(logs[0].recordedAt);
+        }
+        if (!rangeEnd && logs.length > 0) {
+            rangeEnd = new Date(logs[logs.length - 1].recordedAt);
+        }
+
+        const getDateStr = (d: Date) =>
+            groupBy === 'hour'
+                ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:00`
+                : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+        if (rangeStart && rangeEnd) {
+            let currentPointer = new Date(rangeStart);
             if (groupBy === 'hour') {
                 currentPointer.setMinutes(0, 0, 0);
             } else {
                 currentPointer.setHours(0, 0, 0, 0);
             }
 
-            while (currentPointer <= maxDate) {
-                const dateStr =
-                    groupBy === 'hour'
-                        ? `${currentPointer.getFullYear()}-${String(currentPointer.getMonth() + 1).padStart(2, '0')}-${String(currentPointer.getDate()).padStart(2, '0')} ${String(currentPointer.getHours()).padStart(2, '0')}:00`
-                        : `${currentPointer.getFullYear()}-${String(currentPointer.getMonth() + 1).padStart(2, '0')}-${String(currentPointer.getDate()).padStart(2, '0')}`;
-
-                groupedData.set(dateStr, 0);
-
+            while (currentPointer <= rangeEnd) {
+                groupedData.set(getDateStr(currentPointer), {});
                 if (groupBy === 'hour') {
                     currentPointer.setHours(currentPointer.getHours() + 1);
                 } else {
@@ -179,19 +221,31 @@ export class ActivityLogService {
         }
 
         for (const log of logs) {
-            const date = new Date(log.recordedAt);
-            const dateStr =
-                groupBy === 'hour'
-                    ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:00`
-                    : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            const dateStr = getDateStr(new Date(log.recordedAt));
+            const slot = groupedData.get(dateStr) || {};
 
-            const current = groupedData.get(dateStr) || 0;
-            groupedData.set(dateStr, current + log.newlyExhausted);
+            if (log.cityBreakdown.length > 0) {
+                for (const cb of log.cityBreakdown) {
+                    slot[cb.city] = (slot[cb.city] || 0) + cb.newlyExhausted;
+                }
+            } else if (log.newlyExhausted > 0) {
+                slot['All Location'] = (slot['All Location'] || 0) + log.newlyExhausted;
+                allCities.add('All Location');
+            }
+
+            groupedData.set(dateStr, slot);
         }
 
-        return Array.from(groupedData.entries()).map(([time, value]) => ({
-            time,
-            value,
-        }));
+        const cities = Array.from(allCities).sort();
+
+        const chartData = Array.from(groupedData.entries()).map(([time, cityData]) => {
+            const row: Record<string, any> = { time };
+            for (const city of cities) {
+                row[city] = cityData[city] || 0;
+            }
+            return row;
+        });
+
+        return { cities, chartData };
     }
 }
