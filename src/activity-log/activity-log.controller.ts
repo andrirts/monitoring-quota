@@ -10,8 +10,22 @@ export class ActivityLogController {
         @Query('groupBy') groupBy?: 'hour' | 'day',
         @Query('startDate') startDate?: string,
         @Query('endDate') endDate?: string,
+        @Query('city') city?: string,
     ) {
-        return this.activityLogService.getChartData(groupBy || 'hour', startDate, endDate);
+        return this.activityLogService.getChartData(groupBy || 'hour', startDate, endDate, city);
+    }
+
+    @Get('summary')
+    async getSummary(
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+    ) {
+        return this.activityLogService.getSummaryByDate(startDate, endDate);
+    }
+
+    @Get('cities')
+    async getCities() {
+        return this.activityLogService.getCities();
     }
 
     /**

@@ -139,8 +139,27 @@ export class MsisdnService {
      * Jika kuota < 0.4 saat upload, langsung set isExhausted = true
      */
     async bulkUpload(data: BulkUploadItemDto[]) {
+        const msisdnValues = data.map((item) => item.msisdn);
+        const existing = await this.prisma.client.msisdn.findMany({
+            where: { msisdn: { in: msisdnValues } },
+            select: { msisdn: true },
+        });
+        const existingSet = new Set(existing.map((e) => e.msisdn));
+
+        const newData = data.filter((item) => !existingSet.has(item.msisdn));
+        const skippedCount = data.length - newData.length;
+
+        if (newData.length === 0) {
+            this.logger.log(`Bulk upload: semua ${data.length} data sudah ada di DB, tidak ada yang diupload`);
+            return {
+                count: 0,
+                skipped: skippedCount,
+                message: `Semua ${skippedCount} data sudah ada di database, tidak ada data baru yang diupload`,
+            };
+        }
+
         const result = await this.prisma.client.msisdn.createMany({
-            data: data.map((item) => {
+            data: newData.map((item) => {
                 return {
                     msisdn: item.msisdn,
                     sn: item.sn,
@@ -154,11 +173,14 @@ export class MsisdnService {
                     isExhausted: item.kuota < 0.4,
                 };
             }),
-            skipDuplicates: true,
         });
 
-        this.logger.log(`Bulk uploaded ${result.count} records`);
-        return { count: result.count, message: `${result.count} data berhasil diupload` };
+        this.logger.log(`Bulk uploaded ${result.count} records, skipped ${skippedCount} duplicates`);
+        return {
+            count: result.count,
+            skipped: skippedCount,
+            message: `${result.count} data berhasil diupload${skippedCount > 0 ? `, ${skippedCount} data sudah ada (di-skip)` : ''}`,
+        };
     }
 
 
@@ -267,8 +289,7 @@ export class MsisdnService {
 
     async getAllLinks() {
         return this.prisma.client.msisdn.findMany({
-            where: { isExhausted: false },
-            select: { id: true, linkCekKuota: true, kuota: true },
+            select: { id: true, linkCekKuota: true, kuota: true, city: true },
         });
     }
 

@@ -16,6 +16,19 @@ export class ActivityLogService {
      * - Buat activity log snapshot 
      */
     async flagAndSnapshot(): Promise<void> {
+        const recoveredResult = await this.prisma.client.msisdn.updateMany({
+            where: {
+                kuota: { gte: this.EXHAUSTED_THRESHOLD },
+                isExhausted: true,
+            },
+            data: { isExhausted: false },
+        });
+        if (recoveredResult.count > 0) {
+            this.logger.log(
+                `Recovered ${recoveredResult.count} SIMs (kuota kembali >= ${this.EXHAUSTED_THRESHOLD} GB)`,
+            );
+        }
+
         const aboutToExhaust = await this.prisma.client.msisdn.findMany({
             where: {
                 kuota: { lt: this.EXHAUSTED_THRESHOLD },
@@ -147,7 +160,7 @@ export class ActivityLogService {
     /**
      * GET /activity-logs/chart
      */
-    async getChartData(groupBy: 'hour' | 'day', startDate?: string, endDate?: string) {
+    async getChartData(groupBy: 'hour' | 'day', startDate?: string, endDate?: string, city?: string) {
         const where: any = {};
         if (startDate || endDate) {
             where.recordedAt = {};
@@ -159,15 +172,20 @@ export class ActivityLogService {
             }
         }
 
+        const cityBreakdownSelect: any = {
+            select: { city: true, newlyExhausted: true },
+        };
+        if (city) {
+            cityBreakdownSelect.where = { city };
+        }
+
         const logs = await this.prisma.client.activityLog.findMany({
             where,
             orderBy: { recordedAt: 'asc' },
             select: {
                 recordedAt: true,
                 newlyExhausted: true,
-                cityBreakdown: {
-                    select: { city: true, newlyExhausted: true },
-                },
+                cityBreakdown: cityBreakdownSelect,
             },
         });
 
@@ -228,7 +246,7 @@ export class ActivityLogService {
                 for (const cb of log.cityBreakdown) {
                     slot[cb.city] = (slot[cb.city] || 0) + cb.newlyExhausted;
                 }
-            } else if (log.newlyExhausted > 0) {
+            } else if (!city && log.newlyExhausted > 0) {
                 slot['All Location'] = (slot['All Location'] || 0) + log.newlyExhausted;
                 allCities.add('All Location');
             }
@@ -236,16 +254,75 @@ export class ActivityLogService {
             groupedData.set(dateStr, slot);
         }
 
-        const cities = Array.from(allCities).sort();
+        const cities = city
+            ? [city]
+            : Array.from(allCities).sort();
 
         const chartData = Array.from(groupedData.entries()).map(([time, cityData]) => {
             const row: Record<string, any> = { time };
-            for (const city of cities) {
-                row[city] = cityData[city] || 0;
+            for (const c of cities) {
+                row[c] = cityData[c] || 0;
             }
             return row;
         });
 
         return { cities, chartData };
+    }
+
+
+    /**
+     * GET /activity-logs/summary
+     */
+    async getSummaryByDate(startDate?: string, endDate?: string) {
+        const where: any = {};
+        if (startDate || endDate) {
+            where.recordedAt = {};
+            if (startDate) {
+                where.recordedAt.gte = new Date(startDate + 'T00:00:00');
+            }
+            if (endDate) {
+                where.recordedAt.lte = new Date(endDate + 'T23:59:59.999');
+            }
+        }
+
+        const logs = await this.prisma.client.activityLog.findMany({
+            where,
+            select: {
+                newlyExhausted: true,
+                cityBreakdown: {
+                    select: { city: true, newlyExhausted: true },
+                },
+            },
+        });
+
+        let totalExhausted = 0;
+        const cityTotals = new Map<string, number>();
+
+        for (const log of logs) {
+            if (log.cityBreakdown.length > 0) {
+                for (const cb of log.cityBreakdown) {
+                    totalExhausted += cb.newlyExhausted;
+                    cityTotals.set(cb.city, (cityTotals.get(cb.city) || 0) + cb.newlyExhausted);
+                }
+            } else if (log.newlyExhausted > 0) {
+                totalExhausted += log.newlyExhausted;
+                cityTotals.set('All Location', (cityTotals.get('All Location') || 0) + log.newlyExhausted);
+            }
+        }
+
+        const cityBreakdown = Array.from(cityTotals.entries())
+            .map(([city, count]) => ({ city, count }))
+            .sort((a, b) => b.count - a.count);
+
+        return { totalExhausted, cityBreakdown };
+    }
+
+    async getCities(): Promise<string[]> {
+        const cities = await this.prisma.client.msisdn.findMany({
+            select: { city: true },
+            distinct: ['city'],
+            orderBy: { city: 'asc' },
+        });
+        return cities.map((c) => c.city);
     }
 }

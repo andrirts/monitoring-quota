@@ -47,9 +47,15 @@ export class SchedulerService {
       const results = await this.puppeteerService.getQuota(urls);
 
       let updatedCount = 0;
+      let skippedCount = 0;
       for (const result of results) {
         const match = links.find((l) => l.linkCekKuota === result.url);
         if (!match) continue;
+
+        if (Object.keys(result.data).length === 0) {
+          skippedCount++;
+          continue;
+        }
 
         await this.msisdnService.updateQuotaById(
           match.id,
@@ -59,7 +65,7 @@ export class SchedulerService {
       }
 
       this.logger.log(
-        `Scheduled scrape complete. Updated ${updatedCount}/${links.length} records.`,
+        `Scheduled scrape complete. Updated ${updatedCount}/${links.length} records${skippedCount > 0 ? `, skipped ${skippedCount} failed` : ''}.`,
       );
 
       await this.activityLogService.flagAndSnapshot();
