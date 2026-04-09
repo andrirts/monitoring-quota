@@ -136,7 +136,7 @@ export class MsisdnService {
 
     /**
      * Bulk insert data ke database.
-     * Jika kuota < 400 KB saat upload, langsung set isExhausted = true
+     * Jika kuota < 400 MB saat upload, langsung set isExhausted = true
      */
     async bulkUpload(data: BulkUploadItemDto[]) {
         const msisdnValues = data.map((item) => item.msisdn);
@@ -306,9 +306,9 @@ export class MsisdnService {
     }
 
 
-    async getLowQuotaData(thresholdKB: number) {
+    async getLowQuotaData(thresholdMB: number) {
         return this.prisma.client.msisdn.findMany({
-            where: { kuota: { lt: thresholdKB } },
+            where: { kuota: { lt: thresholdMB } },
             orderBy: { kuota: 'asc' },
         });
     }

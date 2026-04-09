@@ -22,11 +22,10 @@ export class PuppeteerService {
     if (!match) return 0;
 
     const num = parseFloat(match[1]);
-    const unit = (match[2] || 'KB').toUpperCase();
+    const unit = (match[2] || 'MB').toUpperCase();
 
     switch (unit) {
-      case 'GB': return num * 1024 * 1024;
-      case 'MB': return num * 1024;
+      case 'GB': return num * 1024;
       default: return num;
     }
   }
@@ -64,7 +63,7 @@ export class PuppeteerService {
       });
 
       const kuotaNasional = this.parseQuotaValue(data['Kuota Nasional'] || '0');
-      this.logger.log(`✅ ${url} → ${kuotaNasional} KB`);
+      this.logger.log(`✅ ${url} → ${kuotaNasional} MB`);
 
       return { url, data, kuotaNasional };
     } catch (err) {

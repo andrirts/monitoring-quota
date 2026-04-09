@@ -24,7 +24,7 @@ export class ActivityLogService {
 
     /**
      * Dijalankan setiap 15 menit setelah scrape selesai.
-     * - Update isExhausted untuk yang kuota < 400 KB
+     * - Update isExhausted untuk yang kuota < 400 MB
      * - Hitung newlyExhausted
      * - Buat activity log snapshot 
      */
@@ -41,7 +41,7 @@ export class ActivityLogService {
         });
         if (recoveredResult.count > 0) {
             this.logger.log(
-                `Recovered ${recoveredResult.count} SIMs (kuota kembali >= ${this.EXHAUSTED_THRESHOLD} KB)`,
+                `Recovered ${recoveredResult.count} SIMs (kuota kembali >= ${this.EXHAUSTED_THRESHOLD} MB)`,
             );
         }
 
