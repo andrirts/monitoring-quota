@@ -386,7 +386,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   Msisdn: 'Msisdn',
   ActivityLog: 'ActivityLog',
-  ActivityLogCity: 'ActivityLogCity'
+  ActivityLogCity: 'ActivityLogCity',
+  ScrapeFailure: 'ScrapeFailure'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -402,7 +403,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "msisdn" | "activityLog" | "activityLogCity"
+    modelProps: "msisdn" | "activityLog" | "activityLogCity" | "scrapeFailure"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -628,6 +629,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ScrapeFailure: {
+      payload: Prisma.$ScrapeFailurePayload<ExtArgs>
+      fields: Prisma.ScrapeFailureFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ScrapeFailureFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ScrapeFailureFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload>
+        }
+        findFirst: {
+          args: Prisma.ScrapeFailureFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ScrapeFailureFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload>
+        }
+        findMany: {
+          args: Prisma.ScrapeFailureFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload>[]
+        }
+        create: {
+          args: Prisma.ScrapeFailureCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload>
+        }
+        createMany: {
+          args: Prisma.ScrapeFailureCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ScrapeFailureCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload>[]
+        }
+        delete: {
+          args: Prisma.ScrapeFailureDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload>
+        }
+        update: {
+          args: Prisma.ScrapeFailureUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload>
+        }
+        deleteMany: {
+          args: Prisma.ScrapeFailureDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ScrapeFailureUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ScrapeFailureUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload>[]
+        }
+        upsert: {
+          args: Prisma.ScrapeFailureUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ScrapeFailurePayload>
+        }
+        aggregate: {
+          args: Prisma.ScrapeFailureAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateScrapeFailure>
+        }
+        groupBy: {
+          args: Prisma.ScrapeFailureGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScrapeFailureGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ScrapeFailureCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ScrapeFailureCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -693,7 +768,10 @@ export const ActivityLogScalarFieldEnum = {
   totalSimCards: 'totalSimCards',
   statusActive: 'statusActive',
   statusHabis: 'statusHabis',
-  newlyExhausted: 'newlyExhausted'
+  newlyExhausted: 'newlyExhausted',
+  scrapeTotal: 'scrapeTotal',
+  scrapeSuccess: 'scrapeSuccess',
+  scrapeFailed: 'scrapeFailed'
 } as const
 
 export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
@@ -707,6 +785,18 @@ export const ActivityLogCityScalarFieldEnum = {
 } as const
 
 export type ActivityLogCityScalarFieldEnum = (typeof ActivityLogCityScalarFieldEnum)[keyof typeof ActivityLogCityScalarFieldEnum]
+
+
+export const ScrapeFailureScalarFieldEnum = {
+  id: 'id',
+  activityLogId: 'activityLogId',
+  msisdn: 'msisdn',
+  url: 'url',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt'
+} as const
+
+export type ScrapeFailureScalarFieldEnum = (typeof ScrapeFailureScalarFieldEnum)[keyof typeof ScrapeFailureScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -899,6 +989,7 @@ export type GlobalOmitConfig = {
   msisdn?: Prisma.MsisdnOmit
   activityLog?: Prisma.ActivityLogOmit
   activityLogCity?: Prisma.ActivityLogCityOmit
+  scrapeFailure?: Prisma.ScrapeFailureOmit
 }
 
 /* Types for Logging */

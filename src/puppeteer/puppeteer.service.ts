@@ -6,6 +6,7 @@ export interface ScrapeResult {
   url: string;
   data: Record<string, string>;
   kuotaNasional: number;
+  errorMessage?: string;
 }
 
 @Injectable()
@@ -79,7 +80,7 @@ export class PuppeteerService {
       }
 
       this.logger.error(`❌ ${url} (after ${this.MAX_RETRIES} retries): ${err.message}`);
-      return { url, data: {}, kuotaNasional: 0 };
+      return { url, data: {}, kuotaNasional: 0, errorMessage: err.message };
     } finally {
       try { if (page) await page.close(); } catch (_) { }
     }

@@ -290,7 +290,7 @@ export class MsisdnService {
     async getAllLinks() {
         return this.prisma.client.msisdn.findMany({
             where: { isExhausted: false },
-            select: { id: true, linkCekKuota: true, kuota: true, city: true },
+            select: { id: true, msisdn: true, linkCekKuota: true, kuota: true, city: true },
         });
     }
 

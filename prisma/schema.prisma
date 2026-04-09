@@ -35,7 +35,11 @@ model ActivityLog {
   statusActive     Int                @map("status_active")
   statusHabis      Int                @map("status_habis")
   newlyExhausted   Int                @map("newly_exhausted")
+  scrapeTotal      Int                @default(0) @map("scrape_total")
+  scrapeSuccess    Int                @default(0) @map("scrape_success")
+  scrapeFailed     Int                @default(0) @map("scrape_failed")
   cityBreakdown    ActivityLogCity[]
+  scrapeFailures   ScrapeFailure[]
 
   @@map("activity_log")
 }
@@ -48,4 +52,16 @@ model ActivityLogCity {
   newlyExhausted  Int         @map("newly_exhausted")
 
   @@map("activity_log_city")
+}
+
+model ScrapeFailure {
+  id              Int         @id @default(autoincrement())
+  activityLogId   Int         @map("activity_log_id")
+  activityLog     ActivityLog @relation(fields: [activityLogId], references: [id], onDelete: Cascade)
+  msisdn          String      @default("")
+  url             String
+  errorMessage    String      @map("error_message")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  @@map("scrape_failure")
 }

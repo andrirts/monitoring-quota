@@ -32,6 +32,9 @@ export type ActivityLogAvgAggregateOutputType = {
   statusActive: number | null
   statusHabis: number | null
   newlyExhausted: number | null
+  scrapeTotal: number | null
+  scrapeSuccess: number | null
+  scrapeFailed: number | null
 }
 
 export type ActivityLogSumAggregateOutputType = {
@@ -40,6 +43,9 @@ export type ActivityLogSumAggregateOutputType = {
   statusActive: number | null
   statusHabis: number | null
   newlyExhausted: number | null
+  scrapeTotal: number | null
+  scrapeSuccess: number | null
+  scrapeFailed: number | null
 }
 
 export type ActivityLogMinAggregateOutputType = {
@@ -49,6 +55,9 @@ export type ActivityLogMinAggregateOutputType = {
   statusActive: number | null
   statusHabis: number | null
   newlyExhausted: number | null
+  scrapeTotal: number | null
+  scrapeSuccess: number | null
+  scrapeFailed: number | null
 }
 
 export type ActivityLogMaxAggregateOutputType = {
@@ -58,6 +67,9 @@ export type ActivityLogMaxAggregateOutputType = {
   statusActive: number | null
   statusHabis: number | null
   newlyExhausted: number | null
+  scrapeTotal: number | null
+  scrapeSuccess: number | null
+  scrapeFailed: number | null
 }
 
 export type ActivityLogCountAggregateOutputType = {
@@ -67,6 +79,9 @@ export type ActivityLogCountAggregateOutputType = {
   statusActive: number
   statusHabis: number
   newlyExhausted: number
+  scrapeTotal: number
+  scrapeSuccess: number
+  scrapeFailed: number
   _all: number
 }
 
@@ -77,6 +92,9 @@ export type ActivityLogAvgAggregateInputType = {
   statusActive?: true
   statusHabis?: true
   newlyExhausted?: true
+  scrapeTotal?: true
+  scrapeSuccess?: true
+  scrapeFailed?: true
 }
 
 export type ActivityLogSumAggregateInputType = {
@@ -85,6 +103,9 @@ export type ActivityLogSumAggregateInputType = {
   statusActive?: true
   statusHabis?: true
   newlyExhausted?: true
+  scrapeTotal?: true
+  scrapeSuccess?: true
+  scrapeFailed?: true
 }
 
 export type ActivityLogMinAggregateInputType = {
@@ -94,6 +115,9 @@ export type ActivityLogMinAggregateInputType = {
   statusActive?: true
   statusHabis?: true
   newlyExhausted?: true
+  scrapeTotal?: true
+  scrapeSuccess?: true
+  scrapeFailed?: true
 }
 
 export type ActivityLogMaxAggregateInputType = {
@@ -103,6 +127,9 @@ export type ActivityLogMaxAggregateInputType = {
   statusActive?: true
   statusHabis?: true
   newlyExhausted?: true
+  scrapeTotal?: true
+  scrapeSuccess?: true
+  scrapeFailed?: true
 }
 
 export type ActivityLogCountAggregateInputType = {
@@ -112,6 +139,9 @@ export type ActivityLogCountAggregateInputType = {
   statusActive?: true
   statusHabis?: true
   newlyExhausted?: true
+  scrapeTotal?: true
+  scrapeSuccess?: true
+  scrapeFailed?: true
   _all?: true
 }
 
@@ -208,6 +238,9 @@ export type ActivityLogGroupByOutputType = {
   statusActive: number
   statusHabis: number
   newlyExhausted: number
+  scrapeTotal: number
+  scrapeSuccess: number
+  scrapeFailed: number
   _count: ActivityLogCountAggregateOutputType | null
   _avg: ActivityLogAvgAggregateOutputType | null
   _sum: ActivityLogSumAggregateOutputType | null
@@ -240,7 +273,11 @@ export type ActivityLogWhereInput = {
   statusActive?: Prisma.IntFilter<"ActivityLog"> | number
   statusHabis?: Prisma.IntFilter<"ActivityLog"> | number
   newlyExhausted?: Prisma.IntFilter<"ActivityLog"> | number
+  scrapeTotal?: Prisma.IntFilter<"ActivityLog"> | number
+  scrapeSuccess?: Prisma.IntFilter<"ActivityLog"> | number
+  scrapeFailed?: Prisma.IntFilter<"ActivityLog"> | number
   cityBreakdown?: Prisma.ActivityLogCityListRelationFilter
+  scrapeFailures?: Prisma.ScrapeFailureListRelationFilter
 }
 
 export type ActivityLogOrderByWithRelationInput = {
@@ -250,7 +287,11 @@ export type ActivityLogOrderByWithRelationInput = {
   statusActive?: Prisma.SortOrder
   statusHabis?: Prisma.SortOrder
   newlyExhausted?: Prisma.SortOrder
+  scrapeTotal?: Prisma.SortOrder
+  scrapeSuccess?: Prisma.SortOrder
+  scrapeFailed?: Prisma.SortOrder
   cityBreakdown?: Prisma.ActivityLogCityOrderByRelationAggregateInput
+  scrapeFailures?: Prisma.ScrapeFailureOrderByRelationAggregateInput
 }
 
 export type ActivityLogWhereUniqueInput = Prisma.AtLeast<{
@@ -263,7 +304,11 @@ export type ActivityLogWhereUniqueInput = Prisma.AtLeast<{
   statusActive?: Prisma.IntFilter<"ActivityLog"> | number
   statusHabis?: Prisma.IntFilter<"ActivityLog"> | number
   newlyExhausted?: Prisma.IntFilter<"ActivityLog"> | number
+  scrapeTotal?: Prisma.IntFilter<"ActivityLog"> | number
+  scrapeSuccess?: Prisma.IntFilter<"ActivityLog"> | number
+  scrapeFailed?: Prisma.IntFilter<"ActivityLog"> | number
   cityBreakdown?: Prisma.ActivityLogCityListRelationFilter
+  scrapeFailures?: Prisma.ScrapeFailureListRelationFilter
 }, "id">
 
 export type ActivityLogOrderByWithAggregationInput = {
@@ -273,6 +318,9 @@ export type ActivityLogOrderByWithAggregationInput = {
   statusActive?: Prisma.SortOrder
   statusHabis?: Prisma.SortOrder
   newlyExhausted?: Prisma.SortOrder
+  scrapeTotal?: Prisma.SortOrder
+  scrapeSuccess?: Prisma.SortOrder
+  scrapeFailed?: Prisma.SortOrder
   _count?: Prisma.ActivityLogCountOrderByAggregateInput
   _avg?: Prisma.ActivityLogAvgOrderByAggregateInput
   _max?: Prisma.ActivityLogMaxOrderByAggregateInput
@@ -290,6 +338,9 @@ export type ActivityLogScalarWhereWithAggregatesInput = {
   statusActive?: Prisma.IntWithAggregatesFilter<"ActivityLog"> | number
   statusHabis?: Prisma.IntWithAggregatesFilter<"ActivityLog"> | number
   newlyExhausted?: Prisma.IntWithAggregatesFilter<"ActivityLog"> | number
+  scrapeTotal?: Prisma.IntWithAggregatesFilter<"ActivityLog"> | number
+  scrapeSuccess?: Prisma.IntWithAggregatesFilter<"ActivityLog"> | number
+  scrapeFailed?: Prisma.IntWithAggregatesFilter<"ActivityLog"> | number
 }
 
 export type ActivityLogCreateInput = {
@@ -298,7 +349,11 @@ export type ActivityLogCreateInput = {
   statusActive: number
   statusHabis: number
   newlyExhausted: number
+  scrapeTotal?: number
+  scrapeSuccess?: number
+  scrapeFailed?: number
   cityBreakdown?: Prisma.ActivityLogCityCreateNestedManyWithoutActivityLogInput
+  scrapeFailures?: Prisma.ScrapeFailureCreateNestedManyWithoutActivityLogInput
 }
 
 export type ActivityLogUncheckedCreateInput = {
@@ -308,7 +363,11 @@ export type ActivityLogUncheckedCreateInput = {
   statusActive: number
   statusHabis: number
   newlyExhausted: number
+  scrapeTotal?: number
+  scrapeSuccess?: number
+  scrapeFailed?: number
   cityBreakdown?: Prisma.ActivityLogCityUncheckedCreateNestedManyWithoutActivityLogInput
+  scrapeFailures?: Prisma.ScrapeFailureUncheckedCreateNestedManyWithoutActivityLogInput
 }
 
 export type ActivityLogUpdateInput = {
@@ -317,7 +376,11 @@ export type ActivityLogUpdateInput = {
   statusActive?: Prisma.IntFieldUpdateOperationsInput | number
   statusHabis?: Prisma.IntFieldUpdateOperationsInput | number
   newlyExhausted?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeTotal?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeSuccess?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeFailed?: Prisma.IntFieldUpdateOperationsInput | number
   cityBreakdown?: Prisma.ActivityLogCityUpdateManyWithoutActivityLogNestedInput
+  scrapeFailures?: Prisma.ScrapeFailureUpdateManyWithoutActivityLogNestedInput
 }
 
 export type ActivityLogUncheckedUpdateInput = {
@@ -327,7 +390,11 @@ export type ActivityLogUncheckedUpdateInput = {
   statusActive?: Prisma.IntFieldUpdateOperationsInput | number
   statusHabis?: Prisma.IntFieldUpdateOperationsInput | number
   newlyExhausted?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeTotal?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeSuccess?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeFailed?: Prisma.IntFieldUpdateOperationsInput | number
   cityBreakdown?: Prisma.ActivityLogCityUncheckedUpdateManyWithoutActivityLogNestedInput
+  scrapeFailures?: Prisma.ScrapeFailureUncheckedUpdateManyWithoutActivityLogNestedInput
 }
 
 export type ActivityLogCreateManyInput = {
@@ -337,6 +404,9 @@ export type ActivityLogCreateManyInput = {
   statusActive: number
   statusHabis: number
   newlyExhausted: number
+  scrapeTotal?: number
+  scrapeSuccess?: number
+  scrapeFailed?: number
 }
 
 export type ActivityLogUpdateManyMutationInput = {
@@ -345,6 +415,9 @@ export type ActivityLogUpdateManyMutationInput = {
   statusActive?: Prisma.IntFieldUpdateOperationsInput | number
   statusHabis?: Prisma.IntFieldUpdateOperationsInput | number
   newlyExhausted?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeTotal?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeSuccess?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeFailed?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ActivityLogUncheckedUpdateManyInput = {
@@ -354,6 +427,9 @@ export type ActivityLogUncheckedUpdateManyInput = {
   statusActive?: Prisma.IntFieldUpdateOperationsInput | number
   statusHabis?: Prisma.IntFieldUpdateOperationsInput | number
   newlyExhausted?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeTotal?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeSuccess?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeFailed?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ActivityLogCountOrderByAggregateInput = {
@@ -363,6 +439,9 @@ export type ActivityLogCountOrderByAggregateInput = {
   statusActive?: Prisma.SortOrder
   statusHabis?: Prisma.SortOrder
   newlyExhausted?: Prisma.SortOrder
+  scrapeTotal?: Prisma.SortOrder
+  scrapeSuccess?: Prisma.SortOrder
+  scrapeFailed?: Prisma.SortOrder
 }
 
 export type ActivityLogAvgOrderByAggregateInput = {
@@ -371,6 +450,9 @@ export type ActivityLogAvgOrderByAggregateInput = {
   statusActive?: Prisma.SortOrder
   statusHabis?: Prisma.SortOrder
   newlyExhausted?: Prisma.SortOrder
+  scrapeTotal?: Prisma.SortOrder
+  scrapeSuccess?: Prisma.SortOrder
+  scrapeFailed?: Prisma.SortOrder
 }
 
 export type ActivityLogMaxOrderByAggregateInput = {
@@ -380,6 +462,9 @@ export type ActivityLogMaxOrderByAggregateInput = {
   statusActive?: Prisma.SortOrder
   statusHabis?: Prisma.SortOrder
   newlyExhausted?: Prisma.SortOrder
+  scrapeTotal?: Prisma.SortOrder
+  scrapeSuccess?: Prisma.SortOrder
+  scrapeFailed?: Prisma.SortOrder
 }
 
 export type ActivityLogMinOrderByAggregateInput = {
@@ -389,6 +474,9 @@ export type ActivityLogMinOrderByAggregateInput = {
   statusActive?: Prisma.SortOrder
   statusHabis?: Prisma.SortOrder
   newlyExhausted?: Prisma.SortOrder
+  scrapeTotal?: Prisma.SortOrder
+  scrapeSuccess?: Prisma.SortOrder
+  scrapeFailed?: Prisma.SortOrder
 }
 
 export type ActivityLogSumOrderByAggregateInput = {
@@ -397,6 +485,9 @@ export type ActivityLogSumOrderByAggregateInput = {
   statusActive?: Prisma.SortOrder
   statusHabis?: Prisma.SortOrder
   newlyExhausted?: Prisma.SortOrder
+  scrapeTotal?: Prisma.SortOrder
+  scrapeSuccess?: Prisma.SortOrder
+  scrapeFailed?: Prisma.SortOrder
 }
 
 export type ActivityLogScalarRelationFilter = {
@@ -418,12 +509,30 @@ export type ActivityLogUpdateOneRequiredWithoutCityBreakdownNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ActivityLogUpdateToOneWithWhereWithoutCityBreakdownInput, Prisma.ActivityLogUpdateWithoutCityBreakdownInput>, Prisma.ActivityLogUncheckedUpdateWithoutCityBreakdownInput>
 }
 
+export type ActivityLogCreateNestedOneWithoutScrapeFailuresInput = {
+  create?: Prisma.XOR<Prisma.ActivityLogCreateWithoutScrapeFailuresInput, Prisma.ActivityLogUncheckedCreateWithoutScrapeFailuresInput>
+  connectOrCreate?: Prisma.ActivityLogCreateOrConnectWithoutScrapeFailuresInput
+  connect?: Prisma.ActivityLogWhereUniqueInput
+}
+
+export type ActivityLogUpdateOneRequiredWithoutScrapeFailuresNestedInput = {
+  create?: Prisma.XOR<Prisma.ActivityLogCreateWithoutScrapeFailuresInput, Prisma.ActivityLogUncheckedCreateWithoutScrapeFailuresInput>
+  connectOrCreate?: Prisma.ActivityLogCreateOrConnectWithoutScrapeFailuresInput
+  upsert?: Prisma.ActivityLogUpsertWithoutScrapeFailuresInput
+  connect?: Prisma.ActivityLogWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ActivityLogUpdateToOneWithWhereWithoutScrapeFailuresInput, Prisma.ActivityLogUpdateWithoutScrapeFailuresInput>, Prisma.ActivityLogUncheckedUpdateWithoutScrapeFailuresInput>
+}
+
 export type ActivityLogCreateWithoutCityBreakdownInput = {
   recordedAt?: Date | string
   totalSimCards: number
   statusActive: number
   statusHabis: number
   newlyExhausted: number
+  scrapeTotal?: number
+  scrapeSuccess?: number
+  scrapeFailed?: number
+  scrapeFailures?: Prisma.ScrapeFailureCreateNestedManyWithoutActivityLogInput
 }
 
 export type ActivityLogUncheckedCreateWithoutCityBreakdownInput = {
@@ -433,6 +542,10 @@ export type ActivityLogUncheckedCreateWithoutCityBreakdownInput = {
   statusActive: number
   statusHabis: number
   newlyExhausted: number
+  scrapeTotal?: number
+  scrapeSuccess?: number
+  scrapeFailed?: number
+  scrapeFailures?: Prisma.ScrapeFailureUncheckedCreateNestedManyWithoutActivityLogInput
 }
 
 export type ActivityLogCreateOrConnectWithoutCityBreakdownInput = {
@@ -457,6 +570,10 @@ export type ActivityLogUpdateWithoutCityBreakdownInput = {
   statusActive?: Prisma.IntFieldUpdateOperationsInput | number
   statusHabis?: Prisma.IntFieldUpdateOperationsInput | number
   newlyExhausted?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeTotal?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeSuccess?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeFailed?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeFailures?: Prisma.ScrapeFailureUpdateManyWithoutActivityLogNestedInput
 }
 
 export type ActivityLogUncheckedUpdateWithoutCityBreakdownInput = {
@@ -466,6 +583,76 @@ export type ActivityLogUncheckedUpdateWithoutCityBreakdownInput = {
   statusActive?: Prisma.IntFieldUpdateOperationsInput | number
   statusHabis?: Prisma.IntFieldUpdateOperationsInput | number
   newlyExhausted?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeTotal?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeSuccess?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeFailed?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeFailures?: Prisma.ScrapeFailureUncheckedUpdateManyWithoutActivityLogNestedInput
+}
+
+export type ActivityLogCreateWithoutScrapeFailuresInput = {
+  recordedAt?: Date | string
+  totalSimCards: number
+  statusActive: number
+  statusHabis: number
+  newlyExhausted: number
+  scrapeTotal?: number
+  scrapeSuccess?: number
+  scrapeFailed?: number
+  cityBreakdown?: Prisma.ActivityLogCityCreateNestedManyWithoutActivityLogInput
+}
+
+export type ActivityLogUncheckedCreateWithoutScrapeFailuresInput = {
+  id?: number
+  recordedAt?: Date | string
+  totalSimCards: number
+  statusActive: number
+  statusHabis: number
+  newlyExhausted: number
+  scrapeTotal?: number
+  scrapeSuccess?: number
+  scrapeFailed?: number
+  cityBreakdown?: Prisma.ActivityLogCityUncheckedCreateNestedManyWithoutActivityLogInput
+}
+
+export type ActivityLogCreateOrConnectWithoutScrapeFailuresInput = {
+  where: Prisma.ActivityLogWhereUniqueInput
+  create: Prisma.XOR<Prisma.ActivityLogCreateWithoutScrapeFailuresInput, Prisma.ActivityLogUncheckedCreateWithoutScrapeFailuresInput>
+}
+
+export type ActivityLogUpsertWithoutScrapeFailuresInput = {
+  update: Prisma.XOR<Prisma.ActivityLogUpdateWithoutScrapeFailuresInput, Prisma.ActivityLogUncheckedUpdateWithoutScrapeFailuresInput>
+  create: Prisma.XOR<Prisma.ActivityLogCreateWithoutScrapeFailuresInput, Prisma.ActivityLogUncheckedCreateWithoutScrapeFailuresInput>
+  where?: Prisma.ActivityLogWhereInput
+}
+
+export type ActivityLogUpdateToOneWithWhereWithoutScrapeFailuresInput = {
+  where?: Prisma.ActivityLogWhereInput
+  data: Prisma.XOR<Prisma.ActivityLogUpdateWithoutScrapeFailuresInput, Prisma.ActivityLogUncheckedUpdateWithoutScrapeFailuresInput>
+}
+
+export type ActivityLogUpdateWithoutScrapeFailuresInput = {
+  recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalSimCards?: Prisma.IntFieldUpdateOperationsInput | number
+  statusActive?: Prisma.IntFieldUpdateOperationsInput | number
+  statusHabis?: Prisma.IntFieldUpdateOperationsInput | number
+  newlyExhausted?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeTotal?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeSuccess?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeFailed?: Prisma.IntFieldUpdateOperationsInput | number
+  cityBreakdown?: Prisma.ActivityLogCityUpdateManyWithoutActivityLogNestedInput
+}
+
+export type ActivityLogUncheckedUpdateWithoutScrapeFailuresInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  recordedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalSimCards?: Prisma.IntFieldUpdateOperationsInput | number
+  statusActive?: Prisma.IntFieldUpdateOperationsInput | number
+  statusHabis?: Prisma.IntFieldUpdateOperationsInput | number
+  newlyExhausted?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeTotal?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeSuccess?: Prisma.IntFieldUpdateOperationsInput | number
+  scrapeFailed?: Prisma.IntFieldUpdateOperationsInput | number
+  cityBreakdown?: Prisma.ActivityLogCityUncheckedUpdateManyWithoutActivityLogNestedInput
 }
 
 
@@ -475,10 +662,12 @@ export type ActivityLogUncheckedUpdateWithoutCityBreakdownInput = {
 
 export type ActivityLogCountOutputType = {
   cityBreakdown: number
+  scrapeFailures: number
 }
 
 export type ActivityLogCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cityBreakdown?: boolean | ActivityLogCountOutputTypeCountCityBreakdownArgs
+  scrapeFailures?: boolean | ActivityLogCountOutputTypeCountScrapeFailuresArgs
 }
 
 /**
@@ -498,6 +687,13 @@ export type ActivityLogCountOutputTypeCountCityBreakdownArgs<ExtArgs extends run
   where?: Prisma.ActivityLogCityWhereInput
 }
 
+/**
+ * ActivityLogCountOutputType without action
+ */
+export type ActivityLogCountOutputTypeCountScrapeFailuresArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ScrapeFailureWhereInput
+}
+
 
 export type ActivityLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -506,7 +702,11 @@ export type ActivityLogSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   statusActive?: boolean
   statusHabis?: boolean
   newlyExhausted?: boolean
+  scrapeTotal?: boolean
+  scrapeSuccess?: boolean
+  scrapeFailed?: boolean
   cityBreakdown?: boolean | Prisma.ActivityLog$cityBreakdownArgs<ExtArgs>
+  scrapeFailures?: boolean | Prisma.ActivityLog$scrapeFailuresArgs<ExtArgs>
   _count?: boolean | Prisma.ActivityLogCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["activityLog"]>
 
@@ -517,6 +717,9 @@ export type ActivityLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   statusActive?: boolean
   statusHabis?: boolean
   newlyExhausted?: boolean
+  scrapeTotal?: boolean
+  scrapeSuccess?: boolean
+  scrapeFailed?: boolean
 }, ExtArgs["result"]["activityLog"]>
 
 export type ActivityLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -526,6 +729,9 @@ export type ActivityLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   statusActive?: boolean
   statusHabis?: boolean
   newlyExhausted?: boolean
+  scrapeTotal?: boolean
+  scrapeSuccess?: boolean
+  scrapeFailed?: boolean
 }, ExtArgs["result"]["activityLog"]>
 
 export type ActivityLogSelectScalar = {
@@ -535,11 +741,15 @@ export type ActivityLogSelectScalar = {
   statusActive?: boolean
   statusHabis?: boolean
   newlyExhausted?: boolean
+  scrapeTotal?: boolean
+  scrapeSuccess?: boolean
+  scrapeFailed?: boolean
 }
 
-export type ActivityLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "recordedAt" | "totalSimCards" | "statusActive" | "statusHabis" | "newlyExhausted", ExtArgs["result"]["activityLog"]>
+export type ActivityLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "recordedAt" | "totalSimCards" | "statusActive" | "statusHabis" | "newlyExhausted" | "scrapeTotal" | "scrapeSuccess" | "scrapeFailed", ExtArgs["result"]["activityLog"]>
 export type ActivityLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cityBreakdown?: boolean | Prisma.ActivityLog$cityBreakdownArgs<ExtArgs>
+  scrapeFailures?: boolean | Prisma.ActivityLog$scrapeFailuresArgs<ExtArgs>
   _count?: boolean | Prisma.ActivityLogCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ActivityLogIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -549,6 +759,7 @@ export type $ActivityLogPayload<ExtArgs extends runtime.Types.Extensions.Interna
   name: "ActivityLog"
   objects: {
     cityBreakdown: Prisma.$ActivityLogCityPayload<ExtArgs>[]
+    scrapeFailures: Prisma.$ScrapeFailurePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -557,6 +768,9 @@ export type $ActivityLogPayload<ExtArgs extends runtime.Types.Extensions.Interna
     statusActive: number
     statusHabis: number
     newlyExhausted: number
+    scrapeTotal: number
+    scrapeSuccess: number
+    scrapeFailed: number
   }, ExtArgs["result"]["activityLog"]>
   composites: {}
 }
@@ -952,6 +1166,7 @@ readonly fields: ActivityLogFieldRefs;
 export interface Prisma__ActivityLogClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   cityBreakdown<T extends Prisma.ActivityLog$cityBreakdownArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ActivityLog$cityBreakdownArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityLogCityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  scrapeFailures<T extends Prisma.ActivityLog$scrapeFailuresArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ActivityLog$scrapeFailuresArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ScrapeFailurePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -987,6 +1202,9 @@ export interface ActivityLogFieldRefs {
   readonly statusActive: Prisma.FieldRef<"ActivityLog", 'Int'>
   readonly statusHabis: Prisma.FieldRef<"ActivityLog", 'Int'>
   readonly newlyExhausted: Prisma.FieldRef<"ActivityLog", 'Int'>
+  readonly scrapeTotal: Prisma.FieldRef<"ActivityLog", 'Int'>
+  readonly scrapeSuccess: Prisma.FieldRef<"ActivityLog", 'Int'>
+  readonly scrapeFailed: Prisma.FieldRef<"ActivityLog", 'Int'>
 }
     
 
@@ -1401,6 +1619,30 @@ export type ActivityLog$cityBreakdownArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.ActivityLogCityScalarFieldEnum | Prisma.ActivityLogCityScalarFieldEnum[]
+}
+
+/**
+ * ActivityLog.scrapeFailures
+ */
+export type ActivityLog$scrapeFailuresArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ScrapeFailure
+   */
+  select?: Prisma.ScrapeFailureSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ScrapeFailure
+   */
+  omit?: Prisma.ScrapeFailureOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ScrapeFailureInclude<ExtArgs> | null
+  where?: Prisma.ScrapeFailureWhereInput
+  orderBy?: Prisma.ScrapeFailureOrderByWithRelationInput | Prisma.ScrapeFailureOrderByWithRelationInput[]
+  cursor?: Prisma.ScrapeFailureWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ScrapeFailureScalarFieldEnum | Prisma.ScrapeFailureScalarFieldEnum[]
 }
 
 /**

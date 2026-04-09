@@ -68,7 +68,22 @@ export class SchedulerService {
         `Scheduled scrape complete. Updated ${updatedCount}/${links.length} records${skippedCount > 0 ? `, skipped ${skippedCount} failed` : ''}.`,
       );
 
-      await this.activityLogService.flagAndSnapshot();
+      const failedResults = results
+        .filter((r) => Object.keys(r.data).length === 0 && r.errorMessage)
+        .map((r) => {
+          const match = links.find((l) => l.linkCekKuota === r.url);
+          return {
+            msisdn: match?.msisdn || '',
+            url: r.url,
+            errorMessage: r.errorMessage || 'Unknown error',
+          };
+        });
+
+      await this.activityLogService.flagAndSnapshot(failedResults, {
+        scrapeTotal: results.length,
+        scrapeSuccess: updatedCount,
+        scrapeFailed: skippedCount,
+      });
     } catch (err) {
       this.logger.error('Error in scheduled scrape:', err);
     } finally {

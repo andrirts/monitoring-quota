@@ -1,5 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import * as ExcelJS from 'exceljs';
+
+export interface ScrapeFailureInput {
+    msisdn: string;
+    url: string;
+    errorMessage: string;
+}
+
+export interface ScrapeStatsInput {
+    scrapeTotal: number;
+    scrapeSuccess: number;
+    scrapeFailed: number;
+}
 
 @Injectable()
 export class ActivityLogService {
@@ -15,7 +28,10 @@ export class ActivityLogService {
      * - Hitung newlyExhausted
      * - Buat activity log snapshot 
      */
-    async flagAndSnapshot(): Promise<void> {
+    async flagAndSnapshot(
+        failures: ScrapeFailureInput[] = [],
+        scrapeStats?: ScrapeStatsInput,
+    ): Promise<void> {
         const recoveredResult = await this.prisma.client.msisdn.updateMany({
             where: {
                 kuota: { gte: this.EXHAUSTED_THRESHOLD },
@@ -63,23 +79,33 @@ export class ActivityLogService {
         const statusHabis = allData.filter((d) => d.kuota < this.EXHAUSTED_THRESHOLD).length;
         const statusActive = totalSimCards - statusHabis;
 
-        await this.prisma.client.activityLog.create({
+        const activityLog = await this.prisma.client.activityLog.create({
             data: {
                 totalSimCards,
                 statusActive,
                 statusHabis,
                 newlyExhausted,
+                scrapeTotal: scrapeStats?.scrapeTotal || 0,
+                scrapeSuccess: scrapeStats?.scrapeSuccess || 0,
+                scrapeFailed: scrapeStats?.scrapeFailed || 0,
                 cityBreakdown: {
                     create: Array.from(cityMap.entries()).map(([city, count]) => ({
                         city,
                         newlyExhausted: count,
                     })),
                 },
+                scrapeFailures: failures.length > 0 ? {
+                    create: failures.map((f) => ({
+                        msisdn: f.msisdn,
+                        url: f.url,
+                        errorMessage: f.errorMessage,
+                    })),
+                } : undefined,
             },
         });
 
         this.logger.log(
-            `[15min] Flag & snapshot — Total: ${totalSimCards} | Aktif: ${statusActive} | Habis: ${statusHabis} | Newly Exhausted: ${newlyExhausted} | Cities: ${cityMap.size}`,
+            `[15min] Flag & snapshot — Total: ${totalSimCards} | Aktif: ${statusActive} | Habis: ${statusHabis} | Newly Exhausted: ${newlyExhausted} | Cities: ${cityMap.size} | Scrape: ${scrapeStats?.scrapeSuccess || 0}/${scrapeStats?.scrapeTotal || 0} success, ${failures.length} failures saved`,
         );
     }
 
@@ -324,5 +350,52 @@ export class ActivityLogService {
             orderBy: { city: 'asc' },
         });
         return cities.map((c) => c.city);
+    }
+
+    async getFailuresByLogId(activityLogId: number) {
+        return this.prisma.client.scrapeFailure.findMany({
+            where: { activityLogId },
+            orderBy: { id: 'asc' },
+        });
+    }
+
+    async exportFailuresExcel(activityLogId: number): Promise<Buffer> {
+        const failures = await this.getFailuresByLogId(activityLogId);
+
+        const log = await this.prisma.client.activityLog.findUnique({
+            where: { id: activityLogId },
+            select: { recordedAt: true },
+        });
+
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Scrape Failures');
+
+        sheet.columns = [
+            { header: 'No', key: 'no', width: 6 },
+            { header: 'MSISDN', key: 'msisdn', width: 18 },
+            { header: 'URL', key: 'url', width: 70 },
+            { header: 'Error Message', key: 'errorMessage', width: 50 },
+            { header: 'Waktu Scrape', key: 'createdAt', width: 22 },
+        ];
+
+        sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        sheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFDC2626' },
+        };
+
+        failures.forEach((failure, index) => {
+            sheet.addRow({
+                no: index + 1,
+                msisdn: failure.msisdn,
+                url: failure.url,
+                errorMessage: failure.errorMessage,
+                createdAt: failure.createdAt,
+            });
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        return Buffer.from(buffer);
     }
 }

@@ -1,5 +1,7 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Param, Res, NotFoundException } from '@nestjs/common';
+import { Response } from 'express';
 import { ActivityLogService } from './activity-log.service';
+import * as dayjs from 'dayjs';
 
 @Controller('activity-logs')
 export class ActivityLogController {
@@ -26,6 +28,31 @@ export class ActivityLogController {
     @Get('cities')
     async getCities() {
         return this.activityLogService.getCities();
+    }
+
+    /**
+     * GET /activity-logs/:id/failures — data scrape gagal per log entry
+     */
+    @Get(':id/failures')
+    async getFailures(@Param('id') id: string) {
+        const failures = await this.activityLogService.getFailuresByLogId(Number(id));
+        return failures;
+    }
+
+    /**
+     * GET /activity-logs/:id/failures/export — download Excel report gagal
+     */
+    @Get(':id/failures/export')
+    async exportFailures(
+        @Param('id') id: string,
+        @Res() res: Response,
+    ) {
+        const buffer = await this.activityLogService.exportFailuresExcel(Number(id));
+        const filename = `scrape-failures-log-${id}-${dayjs().format('YYYY-MM-DD')}.xlsx`;
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(buffer);
     }
 
     /**

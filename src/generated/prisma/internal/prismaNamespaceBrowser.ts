@@ -53,7 +53,8 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Msisdn: 'Msisdn',
   ActivityLog: 'ActivityLog',
-  ActivityLogCity: 'ActivityLogCity'
+  ActivityLogCity: 'ActivityLogCity',
+  ScrapeFailure: 'ScrapeFailure'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -98,7 +99,10 @@ export const ActivityLogScalarFieldEnum = {
   totalSimCards: 'totalSimCards',
   statusActive: 'statusActive',
   statusHabis: 'statusHabis',
-  newlyExhausted: 'newlyExhausted'
+  newlyExhausted: 'newlyExhausted',
+  scrapeTotal: 'scrapeTotal',
+  scrapeSuccess: 'scrapeSuccess',
+  scrapeFailed: 'scrapeFailed'
 } as const
 
 export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
@@ -112,6 +116,18 @@ export const ActivityLogCityScalarFieldEnum = {
 } as const
 
 export type ActivityLogCityScalarFieldEnum = (typeof ActivityLogCityScalarFieldEnum)[keyof typeof ActivityLogCityScalarFieldEnum]
+
+
+export const ScrapeFailureScalarFieldEnum = {
+  id: 'id',
+  activityLogId: 'activityLogId',
+  msisdn: 'msisdn',
+  url: 'url',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt'
+} as const
+
+export type ScrapeFailureScalarFieldEnum = (typeof ScrapeFailureScalarFieldEnum)[keyof typeof ScrapeFailureScalarFieldEnum]
 
 
 export const SortOrder = {

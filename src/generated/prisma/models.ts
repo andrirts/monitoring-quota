@@ -11,4 +11,5 @@
 export type * from './models/Msisdn'
 export type * from './models/ActivityLog'
 export type * from './models/ActivityLogCity'
+export type * from './models/ScrapeFailure'
 export type * from './commonInputTypes'

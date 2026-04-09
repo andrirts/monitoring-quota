@@ -54,3 +54,8 @@ export type ActivityLog = Prisma.ActivityLogModel
  * 
  */
 export type ActivityLogCity = Prisma.ActivityLogCityModel
+/**
+ * Model ScrapeFailure
+ * 
+ */
+export type ScrapeFailure = Prisma.ScrapeFailureModel
