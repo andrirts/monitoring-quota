@@ -18,13 +18,13 @@ export interface ScrapeStatsInput {
 export class ActivityLogService {
     private readonly logger = new Logger(ActivityLogService.name);
 
-    private readonly EXHAUSTED_THRESHOLD = 0.4;
+    private readonly EXHAUSTED_THRESHOLD = 400;
 
     constructor(private readonly prisma: PrismaService) { }
 
     /**
      * Dijalankan setiap 15 menit setelah scrape selesai.
-     * - Update isExhausted untuk yang kuota < 0.4
+     * - Update isExhausted untuk yang kuota < 400 KB
      * - Hitung newlyExhausted
      * - Buat activity log snapshot 
      */
@@ -41,7 +41,7 @@ export class ActivityLogService {
         });
         if (recoveredResult.count > 0) {
             this.logger.log(
-                `Recovered ${recoveredResult.count} SIMs (kuota kembali >= ${this.EXHAUSTED_THRESHOLD} GB)`,
+                `Recovered ${recoveredResult.count} SIMs (kuota kembali >= ${this.EXHAUSTED_THRESHOLD} KB)`,
             );
         }
 
