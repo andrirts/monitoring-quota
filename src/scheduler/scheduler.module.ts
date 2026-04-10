@@ -6,7 +6,12 @@ import { ActivityLogModule } from '../activity-log/activity-log.module';
 import { SchedulerService } from './scheduler.service';
 
 @Module({
-  imports: [PuppeteerModule, MsisdnModule, NotificationModule, ActivityLogModule],
+  imports: [
+    PuppeteerModule,
+    MsisdnModule,
+    NotificationModule,
+    ActivityLogModule,
+  ],
   providers: [SchedulerService],
 })
-export class SchedulerModule { }
+export class SchedulerModule {}

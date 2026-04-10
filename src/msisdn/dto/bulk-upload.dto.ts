@@ -2,37 +2,37 @@ import { IsString, IsNumber, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class BulkUploadItemDto {
-    @IsString()
-    msisdn: string;
+  @IsString()
+  msisdn: string;
 
-    @IsString()
-    sn: string;
+  @IsString()
+  sn: string;
 
-    @Type(() => Number)
-    @IsNumber()
-    slotSimbank: number;
+  @Type(() => Number)
+  @IsNumber()
+  slotSimbank: number;
 
-    @IsString()
-    linkCekKuota: string;
+  @IsString()
+  linkCekKuota: string;
 
-    @IsString()
-    noDus: string;
+  @IsString()
+  noDus: string;
 
-    @Type(() => Number)
-    @IsNumber()
-    kuota: number;
+  @Type(() => Number)
+  @IsNumber()
+  kuota: number;
 
-    @IsOptional()
-    @IsString()
-    city?: string;
+  @IsOptional()
+  @IsString()
+  city?: string;
 
-    @IsOptional()
-    @Type(() => Number)
-    @IsNumber()
-    usedQuota?: number;
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  usedQuota?: number;
 
-    @IsOptional()
-    @Type(() => Number)
-    @IsNumber()
-    remainingQuota?: number;
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  remainingQuota?: number;
 }

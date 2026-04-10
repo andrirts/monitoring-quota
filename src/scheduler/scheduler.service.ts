@@ -97,7 +97,9 @@ export class SchedulerService {
   @Cron('0 5 * * * *')
   async handleActivityLog() {
     try {
-      this.logger.log('Creating hourly activity log snapshot & check notification...');
+      this.logger.log(
+        'Creating hourly activity log snapshot & check notification...',
+      );
       await this.notificationService.checkAndNotify();
       await this.activityLogService.createSnapshot();
     } catch (err) {

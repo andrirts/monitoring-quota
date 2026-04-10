@@ -6,65 +6,64 @@ import { MsisdnService } from '../msisdn/msisdn.service';
 
 @Injectable()
 export class NotificationService {
-    private readonly logger = new Logger(NotificationService.name);
-    private transporter: nodemailer.Transporter;
+  private readonly logger = new Logger(NotificationService.name);
+  private transporter: nodemailer.Transporter;
 
-    constructor(
-        private readonly configService: ConfigService,
-        private readonly msisdnService: MsisdnService,
-    ) {
-        this.transporter = nodemailer.createTransport({
-            host: this.configService.get<string>('EMAIL_HOST', 'smtp.gmail.com'),
-            port: this.configService.get<number>('EMAIL_PORT', 587),
-            secure: false,
-            auth: {
-                user: this.configService.get<string>('EMAIL_USER'),
-                pass: this.configService.get<string>('EMAIL_PASS'),
-            },
-        });
-    }
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly msisdnService: MsisdnService,
+  ) {
+    this.transporter = nodemailer.createTransport({
+      host: this.configService.get<string>('EMAIL_HOST', 'smtp.gmail.com'),
+      port: this.configService.get<number>('EMAIL_PORT', 587),
+      secure: false,
+      auth: {
+        user: this.configService.get<string>('EMAIL_USER'),
+        pass: this.configService.get<string>('EMAIL_PASS'),
+      },
+    });
+  }
 
-    /**
-     * Check apakah perlu kirim notifikasi setelah scraping
-     * Logic: Jika jumlah kartu/SIM dengan kuota < 400MB jumlahnya >= 100,
-     * maka akan dikirim email + Excel Notification
-     */
-    async checkAndNotify(): Promise<void> {
-        try {
-            const thresholdMB = 400;
-            const minCount = 100;
+  /**
+   * Check apakah perlu kirim notifikasi setelah scraping
+   * Logic: Jika jumlah kartu/SIM dengan kuota < 400MB jumlahnya >= 100,
+   * maka akan dikirim email + Excel Notification
+   */
+  async checkAndNotify(): Promise<void> {
+    try {
+      const thresholdMB = 400;
+      const minCount = 100;
 
-            const lowQuotaData =
-                await this.msisdnService.getLowQuotaData(thresholdMB);
+      const lowQuotaData =
+        await this.msisdnService.getLowQuotaData(thresholdMB);
 
-            this.logger.log(
-                `Low quota check: ${lowQuotaData.length} SIM cards below ${thresholdMB} MB`,
-            );
+      this.logger.log(
+        `Low quota check: ${lowQuotaData.length} SIM cards below ${thresholdMB} MB`,
+      );
 
-            if (lowQuotaData.length < minCount) {
-                this.logger.log(
-                    `Count ${lowQuotaData.length} < ${minCount}. No notification needed.`,
-                );
-                return;
-            }
+      if (lowQuotaData.length < minCount) {
+        this.logger.log(
+          `Count ${lowQuotaData.length} < ${minCount}. No notification needed.`,
+        );
+        return;
+      }
 
-            const excelBuffer =
-                await this.msisdnService.exportToExcel(lowQuotaData);
+      const excelBuffer = await this.msisdnService.exportToExcel(lowQuotaData);
 
-            const emailTo = this.configService.get<string>('EMAIL_TO');
-            if (!emailTo) {
-                this.logger.warn('EMAIL_TO not configured. Skipping notification.');
-                return;
-            }
+      const emailTo = this.configService.get<string>('EMAIL_TO');
+      if (!emailTo) {
+        this.logger.warn('EMAIL_TO not configured. Skipping notification.');
+        return;
+      }
 
-            const dateStr = dayjs().format('YYYY-MM-DD HH:mm');
-            const filename = `low-quota-report-${dayjs().format('YYYY-MM-DD')}.xlsx`;
+      const dateStr = dayjs().format('YYYY-MM-DD HH:mm');
+      const filename = `low-quota-report-${dayjs().format('YYYY-MM-DD')}.xlsx`;
 
-            await this.transporter.sendMail({
-                from: `"Monitoring Quota System" <${this.configService.get<string>('EMAIL_USER')}>`,
-                to: emailTo,
-                subject: `[Alert] Quota Rendah - ${lowQuotaData.length} SIM Cards di bawah 400 MB`,
-                html: `
+      await this.transporter.sendMail({
+        from: `"Monitoring Quota System" <${this.configService.get<string>('EMAIL_USER')}>`,
+        to: emailTo,
+        subject: `[Alert] Quota Rendah - ${lowQuotaData.length} SIM Cards di bawah 400 MB`,
+        html: `
           <div style="font-family: Arial, sans-serif; padding: 20px;">
             <h2 style="color: #e53e3e;">⚠️ Alert: Quota Rendah</h2>
             <p>Terdapat <strong>${lowQuotaData.length}</strong> SIM card dengan sisa kuota di bawah <strong>400 MB</strong>.</p>
@@ -87,21 +86,21 @@ export class NotificationService {
             <p style="color: #888; font-size: 12px;">Email ini dikirim otomatis oleh Monitoring Quota System.</p>
           </div>
         `,
-                attachments: [
-                    {
-                        filename,
-                        content: excelBuffer,
-                        contentType:
-                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    },
-                ],
-            });
+        attachments: [
+          {
+            filename,
+            content: excelBuffer,
+            contentType:
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          },
+        ],
+      });
 
-            this.logger.log(
-                `✅ Notification email sent to ${emailTo} with ${lowQuotaData.length} low-quota records.`,
-            );
-        } catch (err) {
-            this.logger.error('Failed to send notification:', err.message);
-        }
+      this.logger.log(
+        `✅ Notification email sent to ${emailTo} with ${lowQuotaData.length} low-quota records.`,
+      );
+    } catch (err) {
+      this.logger.error('Failed to send notification:', err.message);
     }
+  }
 }

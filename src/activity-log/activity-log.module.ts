@@ -5,9 +5,9 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { MsisdnModule } from '../msisdn/msisdn.module';
 
 @Module({
-    imports: [PrismaModule, MsisdnModule],
-    providers: [ActivityLogService],
-    controllers: [ActivityLogController],
-    exports: [ActivityLogService],
+  imports: [PrismaModule, MsisdnModule],
+  providers: [ActivityLogService],
+  controllers: [ActivityLogController],
+  exports: [ActivityLogService],
 })
-export class ActivityLogModule { }
+export class ActivityLogModule {}

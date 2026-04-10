@@ -13,8 +13,7 @@ export interface ScrapeResult {
 export class PuppeteerService {
   private readonly logger = new Logger(PuppeteerService.name);
   private readonly CONCURRENCY = 10;
-  private readonly MAX_RETRIES = 2;
-
+  private readonly MAX_RETRIES = 3;
 
   private parseQuotaValue(value: string): number {
     if (!value) return 0;
@@ -25,11 +24,12 @@ export class PuppeteerService {
     const unit = (match[2] || 'MB').toUpperCase();
 
     switch (unit) {
-      case 'GB': return num * 1024;
-      default: return num;
+      case 'GB':
+        return num * 1024;
+      default:
+        return num;
     }
   }
-
 
   private async scrapeUrl(
     browser: puppeteer.Browser,
@@ -41,8 +41,11 @@ export class PuppeteerService {
     try {
       page = await browser.newPage();
 
+      await page.setUserAgent(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      );
       await page.goto(url, {
-        waitUntil: 'networkidle2',
+        waitUntil: 'domcontentloaded',
         timeout: 30000,
       });
 
@@ -67,21 +70,36 @@ export class PuppeteerService {
 
       return { url, data, kuotaNasional };
     } catch (err) {
-      if (retryCount < this.MAX_RETRIES) {
-        this.logger.warn(
-          `⚠️ Retry ${retryCount + 1}/${this.MAX_RETRIES} for ${url}: ${err.message}`,
-        );
-        try { if (page) await page.close(); } catch (_) { }
-        page = null;
-
-        await new Promise((r) => setTimeout(r, 2000));
-        return this.scrapeUrl(browser, url, retryCount + 1);
+      let isRateLimit = false;
+      if (err.name === 'TimeoutError' && page) {
+        try {
+          const bodyText = await page.evaluate(() =>
+            document.body.innerText.substring(0, 200),
+          );
+          if (bodyText.toLowerCase().includes('rate limit')) {
+            isRateLimit = true;
+          }
+          this.logger.error(
+            `Timeout on ${url}. Page content started with: ${bodyText.replace(/\n/g, ' ')}`,
+          );
+        } catch (_) { }
       }
 
-      this.logger.error(`❌ ${url} (after ${this.MAX_RETRIES} retries): ${err.message}`);
+      if (retryCount < this.MAX_RETRIES) {
+        this.logger.warn(`⚠️ Retry ${retryCount + 1}/${this.MAX_RETRIES} for ${url}${isRateLimit ? ' (Rate Limit Active)' : ''}`);
+        if (page) await page.close().catch(() => { });
+        page = null;
+        await new Promise((r) => setTimeout(r, isRateLimit ? 30000 : 1000));
+        return this.scrapeUrl(browser, url, retryCount + 1);
+      }
+      this.logger.error(
+        `❌ ${url} (after ${this.MAX_RETRIES} retries): ${err.message}`,
+      );
       return { url, data: {}, kuotaNasional: 0, errorMessage: err.message };
     } finally {
-      try { if (page) await page.close(); } catch (_) { }
+      try {
+        if (page) await page.close();
+      } catch (_) { }
     }
   }
 
@@ -121,6 +139,9 @@ export class PuppeteerService {
               const item = queue.shift();
               if (!item) break;
 
+              // Mode Cepat: Hajar terus secepat mungkin sampai kena Rate Limit
+              await new Promise((r) => setTimeout(r, 200 + Math.random() * 600));
+
               const result = await this.scrapeUrl(browser!, item.url);
               results[item.index] = result;
               completedCount++;
@@ -137,8 +158,12 @@ export class PuppeteerService {
 
       await Promise.all(workers);
 
-      const successCount = results.filter((r) => Object.keys(r.data).length > 0).length;
-      const failCount = results.filter((r) => Object.keys(r.data).length === 0).length;
+      const successCount = results.filter(
+        (r) => Object.keys(r.data).length > 0,
+      ).length;
+      const failCount = results.filter(
+        (r) => Object.keys(r.data).length === 0,
+      ).length;
 
       this.logger.log(
         `${dayjs().format('YYYY-MM-DD HH:mm:ss')} Finished: ${successCount} success, ${failCount} failed, ${results.length} total.`,
@@ -154,7 +179,9 @@ export class PuppeteerService {
           await browser.close();
         } catch (err) {
           this.logger.warn('Browser close error (ignored):', err.message);
-          try { browser.process()?.kill('SIGKILL'); } catch (_) { }
+          try {
+            browser.process()?.kill('SIGKILL');
+          } catch (_) { }
         }
       }
     }
