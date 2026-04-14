@@ -26,19 +26,19 @@ export class NotificationService {
 
   /**
    * Check apakah perlu kirim notifikasi setelah scraping
-   * Logic: Jika jumlah kartu/SIM dengan kuota < 400MB jumlahnya >= 100,
+   * Logic: Jika jumlah kartu/SIM dengan kuota < 0.4GB jumlahnya >= 100,
    * maka akan dikirim email + Excel Notification
    */
   async checkAndNotify(): Promise<void> {
     try {
-      const thresholdMB = 400;
+      const thresholdGB = 0.4;
       const minCount = 100;
 
       const lowQuotaData =
-        await this.msisdnService.getLowQuotaData(thresholdMB);
+        await this.msisdnService.getLowQuotaData(thresholdGB);
 
       this.logger.log(
-        `Low quota check: ${lowQuotaData.length} SIM cards below ${thresholdMB} MB`,
+        `Low quota check: ${lowQuotaData.length} SIM cards below ${thresholdGB} GB`,
       );
 
       if (lowQuotaData.length < minCount) {
@@ -62,11 +62,11 @@ export class NotificationService {
       await this.transporter.sendMail({
         from: `"Monitoring Quota System" <${this.configService.get<string>('EMAIL_USER')}>`,
         to: emailTo,
-        subject: `[Alert] Quota Rendah - ${lowQuotaData.length} SIM Cards di bawah 400 MB`,
+        subject: `[Alert] Quota Rendah - ${lowQuotaData.length} SIM Cards di bawah 0.4 GB`,
         html: `
           <div style="font-family: Arial, sans-serif; padding: 20px;">
             <h2 style="color: #e53e3e;">⚠️ Alert: Quota Rendah</h2>
-            <p>Terdapat <strong>${lowQuotaData.length}</strong> SIM card dengan sisa kuota di bawah <strong>400 MB</strong>.</p>
+            <p>Terdapat <strong>${lowQuotaData.length}</strong> SIM card dengan sisa kuota di bawah <strong>0.4 GB</strong>.</p>
             <table style="border-collapse: collapse; margin: 16px 0;">
               <tr>
                 <td style="padding: 8px 16px; border: 1px solid #ddd; background: #f7f7f7;"><strong>Jumlah SIM Card</strong></td>
@@ -74,7 +74,7 @@ export class NotificationService {
               </tr>
               <tr>
                 <td style="padding: 8px 16px; border: 1px solid #ddd; background: #f7f7f7;"><strong>Threshold</strong></td>
-                <td style="padding: 8px 16px; border: 1px solid #ddd;">400 MB</td>
+                <td style="padding: 8px 16px; border: 1px solid #ddd;">0.4 GB</td>
               </tr>
               <tr>
                 <td style="padding: 8px 16px; border: 1px solid #ddd; background: #f7f7f7;"><strong>Waktu Pengecekan</strong></td>

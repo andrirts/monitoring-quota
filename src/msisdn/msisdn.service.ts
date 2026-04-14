@@ -183,7 +183,7 @@ export class MsisdnService {
 
   /**
    * Bulk insert data ke database.
-   * Jika kuota < 400 MB saat upload, langsung set isExhausted = true
+   * Jika kuota < 0.4 GB saat upload, langsung set isExhausted = true
    */
   async bulkUpload(data: BulkUploadItemDto[]) {
     const msisdnValues = data.map((item) => item.msisdn);
@@ -219,7 +219,7 @@ export class MsisdnService {
           usedQuota: 0,
           remainingQuota: 0,
           city: item.city || 'All Location',
-          isExhausted: item.kuota < 400,
+          isExhausted: item.kuota < 0.4,
         };
       }),
     });
@@ -368,9 +368,9 @@ export class MsisdnService {
     });
   }
 
-  async getLowQuotaData(thresholdMB: number) {
+  async getLowQuotaData(thresholdGB: number) {
     return this.prisma.client.msisdn.findMany({
-      where: { kuota: { lt: thresholdMB } },
+      where: { kuota: { lt: thresholdGB } },
       orderBy: { kuota: 'asc' },
     });
   }
