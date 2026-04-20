@@ -43,44 +43,49 @@ export class SchedulerService {
 
       this.logger.log(`Starting scheduled scrape for ${links.length} URLs...`);
 
-      const urls = links.map((l) => l.linkCekKuota);
-      const results = await this.puppeteerService.getQuota(urls);
-
+      const BATCH_SIZE = 50;
       let updatedCount = 0;
       let skippedCount = 0;
-      for (const result of results) {
-        const match = links.find((l) => l.linkCekKuota === result.url);
-        if (!match) continue;
+      const allFailedResults: { msisdn: string; url: string; errorMessage: string }[] = [];
 
-        if (Object.keys(result.data).length === 0) {
-          skippedCount++;
-          continue;
+      for (let i = 0; i < links.length; i += BATCH_SIZE) {
+        const batchLinks = links.slice(i, i + BATCH_SIZE);
+        const batchUrls = batchLinks.map((l) => l.linkCekKuota);
+
+        this.logger.log(`Processing batch ${i / BATCH_SIZE + 1}/${Math.ceil(links.length / BATCH_SIZE)} (${batchUrls.length} URLs)...`);
+
+        const results = await this.puppeteerService.getQuota(batchUrls);
+
+        for (const result of results) {
+          const match = batchLinks.find((l) => l.linkCekKuota === result.url);
+          if (!match) continue;
+
+          if (Object.keys(result.data).length === 0) {
+            skippedCount++;
+            if (result.errorMessage) {
+              allFailedResults.push({
+                msisdn: match?.msisdn || '',
+                url: result.url,
+                errorMessage: result.errorMessage,
+              });
+            }
+            continue;
+          }
+
+          await this.msisdnService.updateQuotaById(
+            match.id,
+            Math.round(result.kuotaNasional * 1000) / 1000,
+          );
+          updatedCount++;
         }
-
-        await this.msisdnService.updateQuotaById(
-          match.id,
-          Math.round(result.kuotaNasional * 1000) / 1000,
-        );
-        updatedCount++;
       }
 
       this.logger.log(
         `Scheduled scrape complete. Updated ${updatedCount}/${links.length} records${skippedCount > 0 ? `, skipped ${skippedCount} failed` : ''}.`,
       );
 
-      const failedResults = results
-        .filter((r) => Object.keys(r.data).length === 0 && r.errorMessage)
-        .map((r) => {
-          const match = links.find((l) => l.linkCekKuota === r.url);
-          return {
-            msisdn: match?.msisdn || '',
-            url: r.url,
-            errorMessage: r.errorMessage || 'Unknown error',
-          };
-        });
-
-      await this.activityLogService.flagAndSnapshot(failedResults, {
-        scrapeTotal: results.length,
+      await this.activityLogService.flagAndSnapshot(allFailedResults, {
+        scrapeTotal: links.length,
         scrapeSuccess: updatedCount,
         scrapeFailed: skippedCount,
       });
